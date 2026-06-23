@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | System Control</title>
+    
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* --- LOGIN SCREEN STYLES --- */
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .login-box {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            margin-top: 0;
+            background: linear-gradient(135deg, #3b82f6, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .input-group input, .form-row input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.2);
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .login-btn, .btn-action {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .login-btn:hover, .btn-action:hover {
+            background: #2563eb;
+        }
+
+        #login-error {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* --- DASHBOARD STYLES --- */
+        #dashboard-screen {
+            display: none;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .dashboard-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            align-items: flex-end;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: rgba(0,0,0,0.2);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: inline-block;
+            margin: 2px;
+        }
+
+        .badge-active {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-inactive {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-muted);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .btn-manage {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .btn-manage:hover {
+            background: #2563eb;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-delete:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            padding: 2rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 { margin: 0; color: var(--primary); }
+        .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .plan-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .plan-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .plan-name { font-weight: bold; font-size: 1rem; color: white; }
+        .plan-price { font-size: 0.8rem; color: var(--text-muted); }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: "";
+            height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Admin Security</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Enter credentials to access the central system.</p>
+            
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="admin-user" placeholder="Enter Admin Username" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="admin-pass" placeholder="Enter Password">
+            </div>
+            
+            <button class="login-btn" onclick="attemptLogin()">Access Portal</button>
+            <div id="login-error">Invalid Credentials. Try again.</div>
+        </div>
+    </div>
+
+    <div id="dashboard-screen">
+        <div class="header">
+            <div>
+                <h1 style="margin: 0; color: var(--primary);">System Control Directory</h1>
+                <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.9rem;">Manage live investment engines and update system configurations.</p>
+            </div>
+            <button class="logout-btn" onclick="logout()">Secure Logout</button>
+        </div>
+
+        <div class="dashboard-section">
+            <h2 class="section-title">Investment Plan Editor Engine</h2>
+            
+            <div class="form-row">
+                <div style="flex: 1;">
+                    <label style="font-size:0.8rem; color:var(--text-muted);">Deposit Text</label>
+                    <input type="text" id="plan-deposit" placeholder="e.g. Rs. 5,000">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size:0.8rem; color:var(--text-muted);">Withdraw Text</label>
+                    <input type="text" id="plan-withdraw" placeholder="e.g. Rs. 1,200">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size:0.8rem; color:var(--text-muted);">Duration</label>
+                    <input type="text" id="plan-duration" placeholder="e.g. 45 Days">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size:0.8rem; color:var(--text-muted);">Interest Rate</label>
+                    <input type="text" id="plan-interest" placeholder="e.g. 8% Daily">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size:0.8rem; color:var(--text-muted);">Sorting Value (Numbers Only)</label>
+                    <input type="number" id="plan-raw-val" placeholder="e.g. 5000">
+                </div>
+                <div>
+                    <button class="btn-action" onclick="createNewPlan()" style="white-space: nowrap;">➕ Deploy Plan</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Deposit Value</th>
+                            <th>Withdraw Value</th>
+                            <th>Duration Scope</th>
+                            <th>Yield Interest</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="plans-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <h2 class="section-title">Active Database Profile Profiles</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Status</th>
+                            <th>Active Tiers</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="plan-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3 id="modal-username-title">Manage Plans</h3>
+                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Toggle to instantly activate/deactivate tiers.</p>
+                </div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <div class="plans-grid" id="modal-plans-list">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        const SECURE_USER = "admin";
+        const SECURE_PASS = "admin123";
+
+        let globalUsers = []; 
+        let systemPlans = []; 
+        let currentlyEditingUser = null;
+
+        function attemptLogin() {
+            const userIn = document.getElementById('admin-user').value;
+            const passIn = document.getElementById('admin-pass').value;
+
+            if (userIn === SECURE_USER && passIn === SECURE_PASS) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard-screen').style.display = 'block';
+                document.getElementById('login-error').style.display = 'none';
+                
+                refreshAllData();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        function logout() {
+            document.getElementById('dashboard-screen').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('admin-user').value = '';
+            document.getElementById('admin-pass').value = '';
+        }
+
+        async function refreshAllData() {
+            await fetchPlansFromDatabase();
+            await fetchUsersFromDatabase();
+        }
+
+        // ==========================================
+        // DYNAMIC PLANS MANAGEMENT (CRUD)
+        // ==========================================
+        async function fetchPlansFromDatabase() {
+            const pBody = document.getElementById('plans-table-body');
+            pBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Syncing plans...</td></tr>';
+            try {
+                const response = await fetch('/api/plans');
+                const data = await response.json();
+                if (response.ok) {
+                    systemPlans = data;
+                    renderPlansMatrixTable();
+                }
+            } catch (err) {
+                console.error("Error reading database configuration matrix:", err);
+                pBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Database Sync Error.</td></tr>';
+            }
+        }
+
+        function renderPlansMatrixTable() {
+            const pBody = document.getElementById('plans-table-body');
+            pBody.innerHTML = '';
+
+            if (systemPlans.length === 0) {
+                pBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">No live investment plans found. Create one above!</td></tr>';
+                return;
+            }
+
+            systemPlans.forEach(plan => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${plan.id}</strong></td>
+                    <td>${plan.deposit}</td>
+                    <td>${plan.withdraw}</td>
+                    <td>${plan.duration}</td>
+                    <td><span style="color:var(--success); font-weight:bold;">${plan.interest}</span></td>
+                    <td>
+                        <button class="btn-delete" onclick="removePlanFromDatabase(${plan.id})">🗑 Delete Card</button>
+                    </td>
+                `;
+                pBody.appendChild(row);
+            });
+        }
+
+        async function createNewPlan() {
+            const deposit = document.getElementById('plan-deposit').value.trim();
+            const withdraw = document.getElementById('plan-withdraw').value.trim();
+            const duration = document.getElementById('plan-duration').value.trim();
+            const interest = document.getElementById('plan-interest').value.trim();
+            const raw_deposit_value = parseInt(document.getElementById('plan-raw-val').value);
+
+            if (!deposit || !withdraw || !duration || !interest || isNaN(raw_deposit_value)) {
+                alert("Please fill all configuration parameters correctly.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/plans', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deposit, withdraw, duration, interest, raw_deposit_value })
+                });
+
+                if (response.ok) {
+                    document.getElementById('plan-deposit').value = '';
+                    document.getElementById('plan-withdraw').value = '';
+                    document.getElementById('plan-duration').value = '';
+                    document.getElementById('plan-interest').value = '';
+                    document.getElementById('plan-raw-val').value = '';
+                    await refreshAllData();
+                } else {
+                    const data = await response.json();
+                    alert("Database write validation error: " + data.error);
+                }
+            } catch (err) {
+                alert("Network interaction fault.");
+            }
+        }
+
+        async function removePlanFromDatabase(id) {
+            if (!confirm(`Are you sure you want to completely erase investment plan ID ${id} from database?`)) return;
+
+            try {
+                const response = await fetch(`/api/admin/plans/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    await refreshAllData();
+                } else {
+                    const data = await response.json();
+                    alert("Teardown handling error: " + data.error);
+                }
+            } catch (err) {
+                alert("Network communication drop.");
+            }
+        }
+
+        // ==========================================
+        // DYNAMIC PROFILE ALLOCATION
+        // ==========================================
+        async function fetchUsersFromDatabase() {
+            const tbody = document.getElementById('user-table-body');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Reading system database user entries...</td></tr>';
+
+            try {
+                const response = await fetch('/api/admin/users');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    globalUsers = data;
+                    renderUserTable();  
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (err) {
+                console.error("Database tracking link break:", err);
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: red;">Directory sync error: ${err.message}</td></tr>`;
+            }
+        }
+
+        function renderUserTable() {
+            const tbody = document.getElementById('user-table-body');
+            tbody.innerHTML = ''; 
+
+            if(globalUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No user records located inside directory pipeline.</td></tr>';
+                return;
+            }
+
+            globalUsers.forEach(user => {
+                const activeTiersArray = user.active_tiers || [];
+                let activeBadges = '';
+                
+                if (activeTiersArray.length === 0) {
+                    activeBadges = `<span class="badge badge-inactive">No Plans</span>`;
+                } else {
+                    activeTiersArray.forEach(tierId => {
+                        activeBadges += `<span class="badge badge-active">Plan ${tierId}</span>`;
+                    });
+                }
+
+                const accStatus = activeTiersArray.length > 0 
+                    ? `<span style="color: var(--success); font-weight:bold;">Active</span>` 
+                    : `<span style="color: gray;">Dormant</span>`;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <strong>${user.username}</strong><br>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">${user.full_name || 'No Verified Profile'}</span>
+                    </td>
+                    <td>${accStatus}</td>
+                    <td>${activeBadges}</td>
+                    <td>
+                        <button class="btn-manage" onclick="openPlanModal('${user.username}')">
+                            ⚙ Activate/Edit Plans
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ==========================================
+        // MODAL TOGGLE & ACTIVE STATE ALLOCATION
+        // ==========================================
+        function openPlanModal(username) {
+            currentlyEditingUser = globalUsers.find(u => u.username === username);
+            document.getElementById('modal-username-title').innerText = `Editing: ${username}`;
+            
+            const plansList = document.getElementById('modal-plans-list');
+            plansList.innerHTML = ''; 
+
+            const activeTiersArray = currentlyEditingUser.active_tiers || [];
+
+            systemPlans.forEach(plan => {
+                const isActivated = activeTiersArray.includes(plan.id);
+                const checkedState = isActivated ? 'checked="checked"' : '';
+                
+                plansList.innerHTML += `
+                    <div class="plan-row">
+                        <div class="plan-info">
+                            <span class="plan-name">${plan.deposit} Card</span>
+                            <span class="plan-price">Payout: ${plan.withdraw} | Scope: ${plan.duration}</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" onchange="toggleUserPlan('${username}', ${plan.id}, this.checked)" ${checkedState}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                `;
+            });
+
+            document.getElementById('plan-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('plan-modal').style.display = 'none';
+            currentlyEditingUser = null;
+            renderUserTable(); 
+        }
+
+        async function toggleUserPlan(username, planId, isChecked) {
+            try {
+                const response = await fetch('/api/admin/toggle-tier', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        username: username, 
+                        planId: planId, 
+                        isActivated: isChecked 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    if (currentlyEditingUser) {
+                        currentlyEditingUser.active_tiers = data.updatedTiers;
+                    }
+                } else {
+                    alert("Database state handling error: " + data.error);
+                    openPlanModal(username); 
+                }
+            } catch (err) {
+                console.error("Network interface drop:", err);
+                alert("Failed to reach server.");
+                openPlanModal(username); 
+            }
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('plan-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Access Portal</title>
+    <link rel="icon" type="image/png" href="/Public/favicon.png.png">
+    <style>
+        /* Modern Cyber Dark Styling */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0f172a;
+            color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            background: #1e293b;
+            padding: 2.5rem;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.75rem;
+            text-align: center;
+            background: linear-gradient(45deg, #3b82f6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: opacity 0.2s;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        .toggle-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .toggle-text span {
+            color: #3b82f6;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .toggle-text span:hover {
+            text-decoration: underline;
+        }
+
+        /* Message banners for user feedback */
+        .status-msg {
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: none;
+            text-align: center;
+        }
+        .error-msg { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .success-msg { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div id="error-banner" class="status-msg error-msg"></div>
+        <div id="success-banner" class="status-msg success-msg"></div>
+
+        <div id="login-box">
+            <h2>Welcome Back</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="login-username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="submit-btn">Sign In</button>
+            </form>
+            <p class="toggle-text">Don't have an account? <span onclick="toggleAuthView(true)">Register here</span></p>
+        </div>
+
+        <div id="register-box" style="display: none;">
+            <h2>Create Account</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-fullname" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="reg-username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" id="reg-mobile" placeholder="e.g. 03229746496" required autocomplete="tel">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="submit-btn">Create Account</button>
+            </form>
+            <p class="toggle-text">Already have an account? <span onclick="toggleAuthView(false)">Login here</span></p>
+        </div>
+    </div>
+
+    <script>
+        const errorBanner = document.getElementById('error-banner');
+        const successBanner = document.getElementById('success-banner');
+
+        function showMessage(type, text) {
+            errorBanner.style.display = 'none';
+            successBanner.style.display = 'none';
+            if (type === 'error') {
+                errorBanner.innerText = text;
+                errorBanner.style.display = 'block';
+            } else {
+                successBanner.innerText = text;
+                successBanner.style.display = 'block';
+            }
+        }
+
+        // Toggle visual views between login and registration panels
+        function toggleAuthView(showRegister) {
+            errorBanner.style.display = 'none';
+            successBanner.style.display = 'none';
+            document.getElementById('login-box').style.display = showRegister ? 'none' : 'block';
+            document.getElementById('register-box').style.display = showRegister ? 'block' : 'none';
+        }
+
+        // --- THE LINK TO THE BACKEND DATABASE ---
+
+        // Handle Registration Submission
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevents page from doing a blank reload
+            
+            const payload = {
+                fullName: document.getElementById('reg-fullname').value,
+                username: document.getElementById('reg-username').value,
+                mobileNumber: document.getElementById('reg-mobile').value,
+                password: document.getElementById('reg-password').value
+            };
+
+            try {
+                // Fetch passes data directly to your Express Server route
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Registration failed.");
+                }
+
+                showMessage('success', 'Account created! Switching to login...');
+                document.getElementById('register-form').reset();
+                setTimeout(() => toggleAuthView(false), 2000);
+
+            } catch (err) {
+                showMessage('error', err.message);
+            }
+        });
+
+        // Handle Login Submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const payload = {
+                username: document.getElementById('login-username').value,
+                password: document.getElementById('login-password').value
+            };
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Invalid login credentials.");
+                }
+
+                showMessage('success', 'Login successful! Redirecting...');
+                
+                // Routes securely into your custom automated dashboard along with user parameter string
+                setTimeout(() => {
+                    window.location.href = `dashboard.html?user=${encodeURIComponent(data.username)}`;
+                }, 1000);
+
+            } catch (err) {
+                showMessage('error', err.message);
+            }
+        });
+    </script>
+</body>
+</html>

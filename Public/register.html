@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* CSS Gradient Text & Shadow Logo */
+        .logo-text {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 2.8rem;
+            font-weight: 600;
+            text-align: center;
+            margin: 0 auto 1.2rem auto;
+            letter-spacing: -0.5px;
+            
+            /* Blue to Purple Gradient */
+            background: linear-gradient(135deg, #2b5cff 30%, #a12cff 90%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            
+            /* Shadow effect optimized for gradient text */
+            filter: drop-shadow(2px 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Modern Error Notification Styling */
+        .error-box {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none; 
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <!-- Pure CSS Logo Text -->
+        <div class="logo-text">IndexSol</div>
+
+        <h1 class="title">Create Account</h1>
+        <p class="subtitle">Start your lifetime journey</p>
+        
+        <div id="error-message" class="error-box"></div>
+        
+        <form id="register-form">
+            <div class="input-group">
+                <input type="text" name="fullName" placeholder="Full Name" required>
+            </div>
+
+            <div class="input-group">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+
+            <div class="input-group">
+                <input 
+                    type="tel" 
+                    name="mobileNumber" 
+                    placeholder="Mobile Number" 
+                    required 
+                    pattern="[0-9]{10,15}" 
+                    title="Please enter a valid mobile number between 10 and 15 digits (numbers only)."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                >
+            </div>
+
+            <div class="input-group">
+                <input 
+                    type="password" 
+                    name="password" 
+                    placeholder="Create Password (Min 6 characters)" 
+                    required 
+                    minlength="6"
+                >
+            </div>
+
+            <button type="submit" class="btn">Create Account</button>
+        </form>
+        <p class="toggle-text">Already have an account? <a href="login.html">Log In</a></p>
+    </div>
+
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault(); 
+
+            const errorBox = document.getElementById('error-message');
+            errorBox.style.display = 'none'; 
+            errorBox.innerText = '';
+
+            const formData = new URLSearchParams(new FormData(this));
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Account successfully created!');
+                    window.location.href = 'login.html'; 
+                } else {
+                    if (result.error && result.error.includes('profiles_username_key')) {
+                        errorBox.innerText = "❌ That username is already taken. Please try another one.";
+                    } else {
+                        errorBox.innerText = result.error || "❌ Registration encountered an issue. Please try again.";
+                    }
+                    errorBox.style.display = 'block';
+                }
+            } catch (err) {
+                console.error("Connection error:", err);
+                errorBox.innerText = "❌ System link error. Please check your network connection.";
+                errorBox.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* CSS Gradient Text & Shadow Logo */
+        .logo-text {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 2.8rem;
+            font-weight: 600;
+            text-align: center;
+            margin: 0 auto 1.2rem auto;
+            letter-spacing: -0.5px;
+            
+            /* Blue to Purple Gradient */
+            background: linear-gradient(135deg, #2b5cff 30%, #a12cff 90%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            
+            /* Shadow effect optimized for gradient text */
+            filter: drop-shadow(2px 4px 8px rgba(0, 0, 0, 0.2));
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <!-- Pure CSS Logo Text -->
+        <div class="logo-text">IndexSol</div>
+        
+        <h1 class="title">Welcome Back</h1>
+        <p class="subtitle">Enter your credentials to access your account</p>
+        
+        <form>
+            <div class="input-group">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+            <div class="input-group">
+                <input type="password" name="password" placeholder="Password" required minlength="6">
+            </div>
+            <button type="submit" class="btn">Log In</button>
+        </form>
+        <p class="toggle-text">Don't have an account? <a href="register.html">Sign Up</a></p>
+    </div>
+
+    <script>
+        const form = document.querySelector('form');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+
+            const username = form.querySelector('input[name="username"]').value;
+            const password = form.querySelector('input[name="password"]').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    window.location.href = `/dashboard?user=${data.username}`;
+                } else {
+                    alert(data.error || 'Invalid login credentials.');
+                }
+            } catch (err) {
+                console.error("Login Client Error:", err);
+                alert('Could not connect to the server. Make sure node server.js is running!');
+            }
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('registered') === 'true') {
+            alert("🎉 Account created successfully! Please log in with your credentials.");
+        }
+    </script>
+</body>
+</html>

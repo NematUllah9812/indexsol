@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Dashboard</title>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Gradient Effect for the Username */
+        #username-display {
+            background: linear-gradient(135deg, #3b82f6, #a855f7, #ff007f); 
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        /* Container setup for the random letter background layer */
+        .bg-symbols-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1; 
+            overflow: hidden;
+            pointer-events: none; 
+            opacity: 0.12; 
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .floating-char {
+            position: absolute;
+            font-weight: bold;
+            user-select: none;
+        }
+
+        /* --- LOGOUT BUTTON STYLING --- */
+        .logout-btn {
+            padding: 10px 24px;
+            border-radius: 50px;
+            border: 1px solid #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+            color: #f87171;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #ef4444;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+        }
+
+        /* --- NEW: USER ACTIVE STATUS PANEL STYLING --- */
+        .status-panel {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (min-width: 650px) {
+            .status-panel {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .status-info-block {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .status-badge.inactive {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-badge.active {
+            background: rgba(16, 185, 129, 0.12);
+            color: #4ade80;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+        }
+
+        .status-text p {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .status-text span {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .status-metrics {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .metric-box {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            text-align: right;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .metric-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* --- VISUAL GLOW FOR ACTIVE CARDS --- */
+        .club-card.active-running-tier {
+            border: 1px solid rgba(16, 185, 129, 0.4) !important;
+            box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.15) !important;
+            background: linear-gradient(180deg, #1e293b 0%, rgba(16, 185, 129, 0.03) 100%);
+        }
+
+        /* Default Layout Grid Setup */
+        .clubs-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Symmetrical 3-column desktop layout constraint */
+        @media (min-width: 900px) {
+            .clubs-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 2rem;
+            }
+        }
+
+        /* --- PHONE & TABLET OPTIMIZATIONS --- */
+        @media (max-width: 650px) {
+            .dashboard-container {
+                padding: 1.25rem 1rem !important;
+            }
+
+            .dashboard-header {
+                flex-direction: column; 
+                text-align: center;
+                gap: 1.25rem;
+                margin-bottom: 2rem;
+                padding-bottom: 1.5rem;
+            }
+
+            .welcome-text h1 {
+                font-size: 1.65rem !important; 
+            }
+
+            .club-card {
+                padding: 1.25rem !important;
+            }
+
+            .status-metrics {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .metric-box {
+                flex: 1;
+                text-align: left;
+            }
+        }
+
+        /* Card internals */
+        .plan-details {
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+
+        .plan-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+        }
+
+        .plan-row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #94a3b8;
+        }
+
+        .value {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .highlight-value {
+            color: #4ade80;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-symbols-container" id="symbols-background"></div>
+
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="welcome-text">
+                <h1>Welcome Back, <span id="username-display">User</span>!</h1>
+                <p>Review and manage your active financial tiers below.</p>
+            </div>
+            <button class="logout-btn" onclick="window.location.href='/login.html'">Log Out</button>
+        </header>
+
+        <section class="status-panel" id="account-status-panel">
+            <div class="status-info-block">
+                <div id="status-badge-element" class="status-badge inactive">No Active Plan</div>
+                <div class="status-text">
+                    <p id="status-headline-text">Account Dormant</p>
+                    <span id="status-subline-text">Activate a tier below to initialize high-yield system generation.</span>
+                </div>
+            </div>
+            <div class="status-metrics">
+                <div class="metric-box">
+                    <span class="metric-label">Active Tiers</span>
+                    <span class="metric-value" id="active-count-metric">0</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Total Allocated</span>
+                    <span class="metric-value" style="color: #4ade80;" id="active-sum-metric">Rs. 0</span>
+                </div>
+            </div>
+        </section>
+
+        <main class="clubs-grid" id="plans-grid-container">
+            <p style="text-align: center; color: #94a3b8;">Loading latest database plans...</p>
+        </main>
+    </div>
+
+    <script>
+        // --- 1. HANDLE USERNAME TRACKING & ROUTING ---
+        const params = new URLSearchParams(window.location.search);
+        const user = params.get('user') || localStorage.getItem('username') || "User";
+        
+        if (params.get('user')) {
+            localStorage.setItem('username', user);
+        }
+        document.getElementById('username-display').innerText = user;
+
+        let investmentPlans = []; // Will be populated from Supabase
+
+        // --- 2. SYNC WITH DATABASE ROUTE & COMPUTE RUNNING SYSTEM STATES ---
+        async function syncUserDashboardWithDatabase() {
+            let activePlanIds = [];
+            
+            try {
+                // Fetch the live plan templates from the database
+                const plansResponse = await fetch('/api/plans');
+                if (plansResponse.ok) {
+                    investmentPlans = await plansResponse.json();
+                } else {
+                    console.error("Failed to load plans from DB.");
+                }
+
+                // Request user's specific approved arrays list
+                const response = await fetch(`/api/user/status/${encodeURIComponent(user)}`);
+                if (response.ok) {
+                    const userData = await response.json();
+                    activePlanIds = userData.active_tiers || [];
+                    localStorage.setItem(`active_tiers_${encodeURIComponent(user)}`, JSON.stringify(activePlanIds));
+                }
+            } catch (err) {
+                console.warn("❌ Live DB fetch failed. Reverting to local parameters.");
+                const persistentData = localStorage.getItem(`active_tiers_${encodeURIComponent(user)}`);
+                if (persistentData) {
+                    try { activePlanIds = JSON.parse(persistentData); } catch(e) { activePlanIds = []; }
+                }
+            }
+
+            // Execute analytics calculation on matched data 
+            let totalActiveSum = 0;
+            let matchedActivePlansList = [];
+
+            activePlanIds.forEach(id => {
+                const planMatch = investmentPlans.find(p => p.id === id);
+                if (planMatch) {
+                    totalActiveSum += planMatch.raw_deposit_value;
+                    matchedActivePlansList.push(`Plan ${planMatch.id}`);
+                }
+            });
+
+            // Update Account Status Top Header Interface Module
+            const badgeEl = document.getElementById('status-badge-element');
+            const headlineEl = document.getElementById('status-headline-text');
+            const sublineEl = document.getElementById('status-subline-text');
+            const countMetricEl = document.getElementById('active-count-metric');
+            const sumMetricEl = document.getElementById('active-sum-metric');
+
+            if (matchedActivePlansList.length > 0) {
+                badgeEl.className = "status-badge active";
+                badgeEl.innerText = "System Active";
+                headlineEl.innerText = "Earning Interest Tier";
+                sublineEl.innerText = `Currently generating regular yields on: ${matchedActivePlansList.join(', ')}`;
+                countMetricEl.innerText = matchedActivePlansList.length;
+                sumMetricEl.innerText = "Rs. " + totalActiveSum.toLocaleString();
+            } else {
+                badgeEl.className = "status-badge inactive";
+                badgeEl.innerText = "No Plan Active";
+                headlineEl.innerText = "Account Inactive";
+                sublineEl.innerText = "Initialize your system configuration sequence by choosing an active allocation tier below.";
+                countMetricEl.innerText = "0";
+                sumMetricEl.innerText = "Rs. 0";
+            }
+
+            // --- 3. RENDER DYNAMIC CARD MAP ---
+            const gridContainer = document.getElementById('plans-grid-container');
+            gridContainer.innerHTML = ""; // Wipe the "Loading..." text
+
+            if (investmentPlans.length === 0) {
+                gridContainer.innerHTML = "<p style='color: #94a3b8;'>No active investment plans available from the server.</p>";
+                return;
+            }
+
+            investmentPlans.forEach(plan => {
+                const isCurrentPlanRunning = activePlanIds.includes(plan.id);
+                
+                // Style elements conditionally based on custom active values
+                const uniqueCardClass = isCurrentPlanRunning ? "club-card active-running-tier" : "club-card";
+                
+                // 🚀 THE NEW DEACTIVATE WHATSAPP BUTTON LOGIC 
+                const functionalActionButton = isCurrentPlanRunning 
+                    ? `<button class="btn" style="padding: 10px; font-size: 0.9rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; cursor: pointer;" onclick="requestDeactivation(${plan.id})">🛑 Request Deactivation</button>`
+                    : `<button class="btn" style="padding: 10px; font-size: 0.9rem;" onclick="activatePlan(${plan.id}, '${plan.deposit}')">Activate Plan</button>`;
+
+                const planHTML = `
+                    <div class="${uniqueCardClass}">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h2 class="club-name" style="color: #3b82f6; margin: 0;">Plan ${plan.id}</h2>
+                                ${isCurrentPlanRunning ? '<span style="color: #4ade80; font-size: 0.75rem; font-weight: bold; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 4px;">RUNNING</span>' : ''}
+                            </div>
+                            
+                            <div class="plan-details">
+                                <div class="plan-row">
+                                    <span class="label">Deposit</span>
+                                    <span class="value">Rs. ${plan.deposit}</span>
+                                </div>
+                                <div class="plan-row">
+                                    <span class="label">Withdraw</span>
+                                    <span class="value">Rs. ${plan.withdraw}</span>
+                                </div>
+                                <div class="plan-row">
+                                    <span class="label">Duration</span>
+                                    <span class="value">${plan.duration}</span>
+                                </div>
+                                <div class="plan-row" style="border-top: 1px dashed rgba(255,255,255,0.15); margin-top: 5px; padding-top: 12px;">
+                                    <span class="label" style="color: #ffffff; font-weight: bold;">Total Interest</span>
+                                    <span class="value highlight-value">Rs. ${plan.interest}</span>
+                                </div>
+                            </div>
+                        </div>
+                        ${functionalActionButton}
+                    </div>
+                `;
+                gridContainer.innerHTML += planHTML;
+            });
+        }
+
+        // --- 4. REDIRECTION TO PAYMENT ROUTE FUNCTION ---
+        function activatePlan(planId, depositAmount) {
+            window.location.href = `/payment.html?plan=${planId}&deposit=${depositAmount}&user=${encodeURIComponent(user)}`;
+        }
+
+        // --- 5. DEACTIVATE WHATSAPP ROUTE FUNCTION ---
+        function requestDeactivation(planId) {
+            if(confirm(`Are you sure you want to deactivate Plan ${planId}? You will be routed to our official WhatsApp.`)) {
+                const phone = "923229746496";
+                const message = `Hello Admin, I am user [${user}]. I would like to request the deactivation and withdrawal of my currently active Plan ${planId}. Please assist.`;
+                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank");
+            }
+        }
+
+        // --- 6. GENERATE MIXED SYMBOLS BACKGROUND LAYER DECORATION ---
+        const bgContainer = document.getElementById('symbols-background');
+        const characterPool = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789✕✚★◆▲●■#@$%&{}[]";
+        const colorPalette = ['#3b82f6', '#a855f7', '#ec4899', '#10b981', '#f59e0b', '#06b6d4'];
+
+        for (let i = 0; i < 100; i++) {
+            const charSpan = document.createElement('span');
+            charSpan.className = 'floating-char';
+            charSpan.innerText = characterPool[Math.floor(Math.random() * characterPool.length)];
+            charSpan.style.left = Math.random() * 100 + 'vw';
+            charSpan.style.top = Math.random() * 100 + 'vh';
+            charSpan.style.color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+            charSpan.style.fontSize = (Math.random() * 1.1 + 0.6) + 'rem';
+            charSpan.style.transform = `rotate(${Math.random() * 360}deg)`;
+            bgContainer.appendChild(charSpan);
+        }
+
+        window.onload = function() {
+            syncUserDashboardWithDatabase();
+        };
+    </script>
+</body>
+</html>

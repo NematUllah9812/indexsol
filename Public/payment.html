@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Complete Secure Payment</title>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 1. Safe Full-Height Centering Layout (Prevents Top Clipping) */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            /* Removed align-items: center to prevent hidden overflow on short phones */
+            box-sizing: border-box;
+            overflow-x: hidden;
+            background-color: #0f172a; /* Dark background fallback */
+        }
+
+        /* 2. Currency Symbols Matrix Background Setup */
+        .bg-currency-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0.12; 
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .floating-symbol {
+            position: absolute;
+            font-weight: bold;
+            user-select: none;
+        }
+
+        /* 3. Payment Card Container Wrapper (Safe Centering Trick) */
+        .payment-wrapper {
+            width: 100%;
+            max-width: 440px; 
+            padding: 1.5rem 1.25rem; /* Balanced padding for top and bottom spacing */
+            box-sizing: border-box;
+            /* margin: auto handles perfect center alignment without breaking scrolling on low-height screens */
+            margin: auto; 
+        }
+
+        .payment-card {
+            background: #1e293b;
+            border-radius: 28px; 
+            padding: 2.25rem 1.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Order Info Header Banner */
+        .invoice-summary {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            border-radius: 18px;
+            padding: 1.25rem 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .invoice-summary h2 {
+            font-size: 1.15rem;
+            color: #3b82f6;
+            margin: 0 0 0.4rem 0;
+            font-weight: 600;
+        }
+
+        .amount-display {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: #4ade80;
+            margin: 0;
+        }
+
+        /* JazzCash Brand Layout Box */
+        .jazzcash-box {
+            background: #111827;
+            border-radius: 18px;
+            padding: 1.25rem;
+            border: 1px solid rgba(245, 158, 11, 0.15);
+            margin-bottom: 1.25rem;
+        }
+
+        .jazzcash-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 1.25rem;
+        }
+
+        .jc-logo-badge {
+            background: linear-gradient(135deg, #d97706, #dc2626);
+            color: white;
+            font-weight: 900;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .jazzcash-title {
+            color: #f59e0b;
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        .detail-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 0.75rem;
+            text-align: left;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Tap-to-Copy Action Code Badge */
+        .copy-badge {
+            font-size: 0.75rem;
+            background: #334155;
+            color: #94a3b8;
+            padding: 5px 12px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .copy-badge:hover {
+            background: #475569;
+            color: #ffffff;
+        }
+
+        /* WhatsApp Section Box Container */
+        .whatsapp-box {
+            background: rgba(16, 185, 129, 0.04);
+            border: 1px solid rgba(16, 185, 129, 0.12);
+            border-radius: 18px;
+            padding: 1.25rem 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .whatsapp-box p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin: 0 0 1rem 0;
+            line-height: 1.4;
+        }
+
+        .wa-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            width: 100%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .wa-btn:hover {
+            background: #128C7E;
+        }
+
+        .wa-icon {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .box-divider {
+            margin: 14px 0;
+            color: #475569;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .back-btn {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            padding: 11px 20px;
+            border-radius: 50px;
+            width: 100%;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #334155;
+            color: white;
+        }
+
+        /* --- MOBILE SCREEN TWEAKS --- */
+        @media (max-width: 400px) {
+            .payment-card {
+                padding: 1.75rem 1.1rem;
+                border-radius: 22px;
+            }
+            .amount-display {
+                font-size: 1.65rem;
+            }
+            .detail-value {
+                font-size: 1rem;
+            }
+            .copy-badge {
+                padding: 4px 10px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-currency-container" id="currency-background"></div>
+
+    <div class="payment-wrapper">
+        <div class="payment-card">
+            
+            <div class="invoice-summary">
+                <h2>Plan <span id="plan-number-placeholder">-</span> Activation</h2>
+                <div class="detail-label" style="margin-top: 4px;">Total Deposit Required</div>
+                <div class="amount-display">Rs. <span id="deposit-amount-placeholder">0</span></div>
+            </div>
+
+            <div class="jazzcash-box">
+                <div class="jazzcash-header">
+                    <span class="jc-logo-badge">JazzCash</span>
+                    <span class="jazzcash-title">Payment Details</span>
+                </div>
+                
+                <div class="detail-row" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
+                    <span class="detail-label">Account Title</span>
+                    <span class="detail-value" style="color: #f59e0b;">Muhammad YAHYA</span>
+                </div>
+
+                <div class="detail-row" style="padding-top: 4px;">
+                    <span class="detail-label">Account Number</span>
+                    <span class="detail-value">
+                        <span id="account-number">03229746496</span>
+                        <span class="copy-badge" onclick="copyAccountNumber()">Copy</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="whatsapp-box">
+                <p><strong>Required Step:</strong> Share your payment receipt / screenshot proof directly with our official number on WhatsApp to activate your plan:</p>
+                <button class="wa-btn" onclick="sendProofDirectly()">
+                    <svg class="wa-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    Send Proof Directly
+                </button>
+
+                <div class="box-divider">— OR —</div>
+
+                <p>Alternatively, join our updates and confirmation group chat to submit your proof of deposit:</p>
+                <button class="wa-btn" onclick="joinWhatsAppGroup()" style="background: #334155;">
+                    <svg class="wa-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    Join WhatsApp Group
+                </button>
+            </div>
+
+            <button class="back-btn" onclick="returnToDashboard()">‹ Back to Dashboard</button>
+
+        </div>
+    </div>
+
+    <script>
+        // --- 1. EXTRACT URL PARAMETERS ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedPlan = urlParams.get('plan') || '1';
+        const rawDeposit = urlParams.get('deposit') || '400';
+        const currentSessionUser = urlParams.get('user') || 'User';
+
+        document.getElementById('plan-number-placeholder').innerText = selectedPlan;
+        document.getElementById('deposit-amount-placeholder').innerText = rawDeposit;
+
+
+        // --- 2. FLOATING CURRENCY GENERATOR ($ & €) ---
+        const bgLayer = document.getElementById('currency-background');
+        const financialTokens = ["$", "€"];
+        const vibrantColors = ['#3b82f6', '#a855f7', '#ec4899', '#10b981', '#f59e0b', '#06b6d4', '#4ade80'];
+
+        for (let i = 0; i < 80; i++) {
+            const tokenSpan = document.createElement('span');
+            tokenSpan.className = 'floating-symbol';
+            tokenSpan.innerText = financialTokens[Math.floor(Math.random() * financialTokens.length)];
+            
+            tokenSpan.style.left = Math.random() * 100 + 'vw';
+            tokenSpan.style.top = Math.random() * 100 + 'vh';
+            tokenSpan.style.color = vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
+            tokenSpan.style.fontSize = (Math.random() * 1.2 + 0.6) + 'rem';
+            tokenSpan.style.transform = `rotate(${Math.random() * 360}deg)`;
+            
+            bgLayer.appendChild(tokenSpan);
+        }
+
+
+        // --- 3. ACTIONS AND REDIRECTS ---
+        function copyAccountNumber() {
+            const numText = document.getElementById('account-number').innerText;
+            navigator.clipboard.writeText(numText).then(() => {
+                alert("Account Number copied: " + numText);
+            }).catch(err => {
+                alert("Please manually copy: " + numText);
+            });
+        }
+
+        function joinWhatsAppGroup() {
+            window.open("https://chat.whatsapp.com/F7cYOjrDTvNKPTs7XCLJfV?s=sw&p=a&mlu=3&amv=1", "_blank");
+        }
+
+        function sendProofDirectly() {
+            const countryCodePhone = "923229746496"; 
+            const textTemplate = `Hello Muhammad Yahya, I have transferred Rs. ${rawDeposit} for Plan ${selectedPlan}. Attached is my payment screenshot proof for user account: ${currentSessionUser}.`;
+            window.open(`https://wa.me/${countryCodePhone}?text=${encodeURIComponent(textTemplate)}`, "_blank");
+        }
+
+        function returnToDashboard() {
+            window.location.href = `dashboard.html?user=${encodeURIComponent(currentSessionUser)}`;
+        }
+    </script>
+</body>
+</html>
