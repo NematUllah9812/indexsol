@@ -305,7 +305,3 @@ app.get('/', (req, res) => {
 
 // Export the application layer for Vercel Serverless engine integration
 module.exports = app;
-
-// Local development runner
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Backend live and listening on http://localhost:${PORT}`));
