@@ -4,15 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In</title>
     <link rel="stylesheet" href="style.css">
-    
     <link rel="icon" type="image/png" href="favicon.png">
-</head>
-    <link rel="stylesheet" href="style.css">
+    
     <style>
         /* CSS Gradient Text & Shadow Logo */
         .logo-text {
@@ -45,11 +39,34 @@
             display: none; 
             font-weight: 500;
         }
+
+        /* Password Toggle Positioning */
+        .input-group {
+            position: relative;
+        }
+        .input-group input[type="password"],
+        .input-group input[type="text"].password-input {
+            padding-right: 40px; /* Space for the icon so text doesn't overlap */
+        }
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+        .toggle-password:hover {
+            color: #2b5cff;
+        }
     </style>
 </head>
 <body>
     <div class="card">
-        <!-- Pure CSS Logo Text -->
         <div class="logo-text">IndexSol</div>
 
         <h1 class="title">Create Account</h1>
@@ -82,10 +99,18 @@
                 <input 
                     type="password" 
                     name="password" 
+                    id="register-password"
+                    class="password-input"
                     placeholder="Create Password (Min 6 characters)" 
                     required 
                     minlength="6"
                 >
+                <span class="toggle-password" onclick="togglePasswordVisibility('register-password', this)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </span>
             </div>
 
             <button type="submit" class="btn">Create Account</button>
@@ -94,6 +119,21 @@
     </div>
 
     <script>
+        // --- Password Visibility Toggle Logic ---
+        function togglePasswordVisibility(inputId, iconContainer) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                // Change to Eye-Off SVG
+                iconContainer.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+            } else {
+                input.type = "password";
+                // Change back to Eye SVG
+                iconContainer.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+            }
+        }
+
+        // --- Registration Form Logic ---
         document.getElementById('register-form').addEventListener('submit', async function(e) {
             e.preventDefault(); 
 

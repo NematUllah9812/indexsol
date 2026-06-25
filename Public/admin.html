@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal | System Control</title>
-    
+    <link rel="icon" type="image/png" href="favicon.png">
     <style>
         :root {
             --bg-color: #0f172a;
@@ -33,6 +33,8 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
         .login-box {
@@ -44,6 +46,7 @@
             width: 100%;
             max-width: 350px;
             text-align: center;
+            box-sizing: border-box;
         }
 
         .login-box h2 {
@@ -104,6 +107,7 @@
             padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
+            box-sizing: border-box;
         }
 
         .header {
@@ -113,6 +117,7 @@
             margin-bottom: 2rem;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 1rem;
+            gap: 15px;
         }
 
         .logout-btn {
@@ -123,6 +128,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
+            white-space: nowrap;
         }
 
         .dashboard-section {
@@ -237,16 +243,19 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         .modal-content {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            width: 90%;
+            width: 100%;
             max-width: 500px;
             padding: 2rem;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-sizing: border-box;
         }
 
         .modal-header {
@@ -276,6 +285,7 @@
             padding: 12px 16px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
+            gap: 10px;
         }
 
         .plan-info {
@@ -291,6 +301,7 @@
             display: inline-block;
             width: 44px;
             height: 24px;
+            flex-shrink: 0;
         }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
@@ -309,6 +320,110 @@
         }
         input:checked + .slider { background-color: var(--success); }
         input:checked + .slider:before { transform: translateX(20px); }
+
+        /* ========================================================
+           📱 RESPONSIVE PHONE & TABLET CONFIGURATIONS (UNDER 768px)
+           ======================================================== */
+        @media (max-width: 768px) {
+            #dashboard-screen {
+                padding: 1rem 12px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+                gap: 12px;
+            }
+
+            .logout-btn {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 1rem;
+            }
+
+            .form-row > div {
+                width: 100% !important;
+            }
+
+            .btn-action {
+                padding: 14px;
+            }
+
+            /* Convert wide data tables into clean vertical profile cards */
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead {
+                display: none; /* Hide wide column arrays on smartphone screens */
+            }
+
+            tr {
+                margin-bottom: 1rem;
+                background: rgba(0, 0, 0, 0.15);
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                padding: 8px;
+            }
+
+            td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                text-align: right;
+                padding: 10px 8px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                box-sizing: border-box;
+            }
+
+            td:last-child {
+                border-bottom: none;
+            }
+
+            /* Append responsive descriptive column tags on the left side */
+            td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: var(--text-muted);
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                text-align: left;
+                padding-right: 15px;
+                letter-spacing: 0.5px;
+            }
+
+            /* Expand responsive actions layout targets full-width for effortless finger presses */
+            td[data-label="Action"], td[data-label="Actions"] {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                padding-top: 14px;
+            }
+
+            td[data-label="Action"]::before, td[data-label="Actions"]::before {
+                text-align: center;
+                padding-bottom: 4px;
+                width: 100%;
+            }
+
+            .btn-delete, .btn-manage {
+                width: 100%;
+                padding: 12px;
+                box-sizing: border-box;
+                font-size: 0.95rem;
+            }
+
+            /* Modal box adjustments */
+            .modal-content {
+                padding: 1.2rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -346,11 +461,11 @@
             
             <div class="form-row">
                 <div style="flex: 1;">
-                    <label style="font-size:0.8rem; color:var(--text-muted);">Deposit Text</label>
+                    <label style="font-size:0.8rem; color:var(--text-muted);">Deposit</label>
                     <input type="text" id="plan-deposit" placeholder="e.g. Rs. 5,000">
                 </div>
                 <div style="flex: 1;">
-                    <label style="font-size:0.8rem; color:var(--text-muted);">Withdraw Text</label>
+                    <label style="font-size:0.8rem; color:var(--text-muted);">Withdraw</label>
                     <input type="text" id="plan-withdraw" placeholder="e.g. Rs. 1,200">
                 </div>
                 <div style="flex: 1;">
@@ -358,12 +473,12 @@
                     <input type="text" id="plan-duration" placeholder="e.g. 45 Days">
                 </div>
                 <div style="flex: 1;">
-                    <label style="font-size:0.8rem; color:var(--text-muted);">Interest Rate</label>
-                    <input type="text" id="plan-interest" placeholder="e.g. 8% Daily">
+                    <label style="font-size:0.8rem; color:var(--text-muted);">Interest</label>
+                    <input type="text" id="plan-interest" placeholder="e.g. 50,000">
                 </div>
                 <div style="flex: 1;">
-                    <label style="font-size:0.8rem; color:var(--text-muted);">Sorting Value (Numbers Only)</label>
-                    <input type="number" id="plan-raw-val" placeholder="e.g. 5000">
+                    <label style="font-size:0.8rem; color:var(--text-muted);">Value (deposit)</label>
+                    <input type="number" id="plan-raw-val" placeholder="e.g. 5,000">
                 </div>
                 <div>
                     <button class="btn-action" onclick="createNewPlan()" style="white-space: nowrap;">➕ Deploy Plan</button>
@@ -383,13 +498,13 @@
                         </tr>
                     </thead>
                     <tbody id="plans-table-body">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
 
         <div class="dashboard-section">
-            <h2 class="section-title">Active Database Profile Profiles</h2>
+            <h2 class="section-title">Active Database Profiles</h2>
             <div class="table-container">
                 <table>
                     <thead>
@@ -401,7 +516,7 @@
                         </tr>
                     </thead>
                     <tbody id="user-table-body">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -418,7 +533,7 @@
             </div>
             
             <div class="plans-grid" id="modal-plans-list">
-                </div>
+            </div>
         </div>
     </div>
 
@@ -485,16 +600,19 @@
                 return;
             }
 
-            systemPlans.forEach(plan => {
+            // 🟢 FIX 1: Add index + 1 for the main admin table
+            systemPlans.forEach((plan, index) => {
+                const displayRank = index + 1;
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><strong>${plan.id}</strong></td>
-                    <td>${plan.deposit}</td>
-                    <td>${plan.withdraw}</td>
-                    <td>${plan.duration}</td>
-                    <td><span style="color:var(--success); font-weight:bold;">${plan.interest}</span></td>
-                    <td>
-                        <button class="btn-delete" onclick="removePlanFromDatabase(${plan.id})">🗑 Delete Card</button>
+                    <td data-label="Plan"><strong>Plan ${displayRank}</strong></td>
+                    <td data-label="Deposit Value">${plan.deposit}</td>
+                    <td data-label="Withdraw Value">${plan.withdraw}</td>
+                    <td data-label="Duration Scope">${plan.duration}</td>
+                    <td data-label="Yield Interest"><span style="color:var(--success); font-weight:bold;">${plan.interest}</span></td>
+                    <td data-label="Action">
+                        <button class="btn-delete" onclick="removePlanFromDatabase(${plan.id})">🗑 Delete</button>
                     </td>
                 `;
                 pBody.appendChild(row);
@@ -537,7 +655,7 @@
         }
 
         async function removePlanFromDatabase(id) {
-            if (!confirm(`Are you sure you want to completely erase investment plan ID ${id} from database?`)) return;
+            if (!confirm(`Are you sure you want to completely erase this investment plan from database?`)) return;
 
             try {
                 const response = await fetch(`/api/admin/plans/${id}`, { method: 'DELETE' });
@@ -592,7 +710,13 @@
                     activeBadges = `<span class="badge badge-inactive">No Plans</span>`;
                 } else {
                     activeTiersArray.forEach(tierId => {
-                        activeBadges += `<span class="badge badge-active">Plan ${tierId}</span>`;
+                        // 🟢 FIX 2: Look up the visual rank of the active plan for the user badges
+                        const planIndex = systemPlans.findIndex(p => p.id === tierId);
+                        
+                        // If it finds the plan, use its visual rank (index + 1), otherwise fallback to the raw ID
+                        const displayRank = planIndex !== -1 ? (planIndex + 1) : tierId;
+                        
+                        activeBadges += `<span class="badge badge-active">Plan ${displayRank}</span>`;
                     });
                 }
 
@@ -602,13 +726,13 @@
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>
+                    <td data-label="Username">
                         <strong>${user.username}</strong><br>
                         <span style="font-size: 0.75rem; color: var(--text-muted);">${user.full_name || 'No Verified Profile'}</span>
                     </td>
-                    <td>${accStatus}</td>
-                    <td>${activeBadges}</td>
-                    <td>
+                    <td data-label="Status">${accStatus}</td>
+                    <td data-label="Active Tiers">${activeBadges}</td>
+                    <td data-label="Actions">
                         <button class="btn-manage" onclick="openPlanModal('${user.username}')">
                             ⚙ Activate/Edit Plans
                         </button>
@@ -630,14 +754,16 @@
 
             const activeTiersArray = currentlyEditingUser.active_tiers || [];
 
-            systemPlans.forEach(plan => {
+            // 🟢 FIX 3: Update the labels inside the activation Modal
+            systemPlans.forEach((plan, index) => {
                 const isActivated = activeTiersArray.includes(plan.id);
                 const checkedState = isActivated ? 'checked="checked"' : '';
+                const displayRank = index + 1;
                 
                 plansList.innerHTML += `
                     <div class="plan-row">
                         <div class="plan-info">
-                            <span class="plan-name">${plan.deposit} Card</span>
+                            <span class="plan-name">Plan ${displayRank} (${plan.deposit} Deposit)</span>
                             <span class="plan-price">Payout: ${plan.withdraw} | Scope: ${plan.duration}</span>
                         </div>
                         <label class="switch">
@@ -692,6 +818,32 @@
                 closeModal();
             }
         }
-    </script>
+
+        // ==========================================
+        // KEYBOARD EVENT LISTENERS (ENTER TO LOGIN)
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const adminPassInput = document.getElementById('admin-pass');
+            const adminUserInput = document.getElementById('admin-user');
+
+            if (adminPassInput) {
+                adminPassInput.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault(); // Stop standard form submission
+                        attemptLogin();         // Call your exact login logic
+                    }
+                });
+            }
+
+            if (adminUserInput) {
+                adminUserInput.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        attemptLogin();
+                    }
+                });
+            }
+        });
+</script>
 </body>
 </html>

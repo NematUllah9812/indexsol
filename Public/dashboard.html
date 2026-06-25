@@ -4,15 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investment Dashboard</title>
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In</title>
     <link rel="stylesheet" href="style.css">
-    
     <link rel="icon" type="image/png" href="favicon.png">
-</head>
-    <link rel="stylesheet" href="style.css">
     <style>
         /* Gradient Effect for the Username */
         #username-display {
@@ -186,6 +179,7 @@
             }
 
             .dashboard-header {
+                display: flex;
                 flex-direction: column; 
                 text-align: center;
                 gap: 1.25rem;
@@ -197,18 +191,55 @@
                 font-size: 1.65rem !important; 
             }
 
-            .club-card {
-                padding: 1.25rem !important;
+            /* Fixes the cramped look on mobile */
+            .status-panel {
+                padding: 1.25rem;
+                gap: 1.5rem;
             }
 
+            /* Stack badge above the text to give paragraphs full screen width */
+            .status-info-block {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.85rem;
+            }
+
+            .status-badge {
+                font-size: 0.75rem;
+                padding: 4px 12px;
+            }
+
+            .status-text p {
+                font-size: 1.1rem;
+            }
+
+            .status-text span {
+                font-size: 0.85rem;
+                line-height: 1.4;
+                margin-top: 4px;
+            }
+
+            /* Clean split for the two metric boxes side-by-side */
             .status-metrics {
                 width: 100%;
+                display: flex;
+                gap: 0.75rem;
                 justify-content: space-between;
             }
 
+            /* Center-align metrics content on mobile for balanced visual weight */
             .metric-box {
                 flex: 1;
-                text-align: left;
+                text-align: center;
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .metric-value {
+                font-size: 1.1rem;
+            }
+
+            .club-card {
+                padding: 1.25rem !important;
             }
         }
 
@@ -328,7 +359,9 @@
             activePlanIds.forEach(id => {
                 const planMatch = investmentPlans.find(p => p.id === id);
                 if (planMatch) {
-                    totalActiveSum += planMatch.raw_deposit_value;
+                    // Tweak fallback calculation in case raw integer values aren't passed explicitly
+                    const parsedDeposit = planMatch.raw_deposit_value || parseFloat(String(planMatch.deposit).replace(/,/g, '')) || 0;
+                    totalActiveSum += parsedDeposit;
                     matchedActivePlansList.push(`Plan ${planMatch.id}`);
                 }
             });
@@ -356,58 +389,62 @@
                 sumMetricEl.innerText = "Rs. 0";
             }
 
-            // --- 3. RENDER DYNAMIC CARD MAP ---
-            const gridContainer = document.getElementById('plans-grid-container');
-            gridContainer.innerHTML = ""; // Wipe the "Loading..." text
+           // --- 3. RENDER DYNAMIC CARD MAP ---
+        const gridContainer = document.getElementById('plans-grid-container');
+        gridContainer.innerHTML = ""; // Wipe the "Loading..." text
 
-            if (investmentPlans.length === 0) {
-                gridContainer.innerHTML = "<p style='color: #94a3b8;'>No active investment plans available from the server.</p>";
-                return;
-            }
+        if (investmentPlans.length === 0) {
+            gridContainer.innerHTML = "<p style='color: #94a3b8;'>No active investment plans available from the server.</p>";
+            return;
+        }
 
-            investmentPlans.forEach(plan => {
-                const isCurrentPlanRunning = activePlanIds.includes(plan.id);
-                
-                // Style elements conditionally based on custom active values
-                const uniqueCardClass = isCurrentPlanRunning ? "club-card active-running-tier" : "club-card";
-                
-                // 🚀 THE NEW DEACTIVATE WHATSAPP BUTTON LOGIC 
-                const functionalActionButton = isCurrentPlanRunning 
-                    ? `<button class="btn" style="padding: 10px; font-size: 0.9rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; cursor: pointer;" onclick="requestDeactivation(${plan.id})">🛑 Request Deactivation</button>`
-                    : `<button class="btn" style="padding: 10px; font-size: 0.9rem;" onclick="activatePlan(${plan.id}, '${plan.deposit}')">Activate Plan</button>`;
+        // 🟢 THE FIX: Add 'index' here
+        investmentPlans.forEach((plan, index) => {
+            const isCurrentPlanRunning = activePlanIds.includes(plan.id);
+            
+            // 🟢 THE FIX: Calculate the visual number based on its position in the list
+            const displayRank = index + 1;
+            
+            // Style elements conditionally based on custom active values
+            const uniqueCardClass = isCurrentPlanRunning ? "club-card active-running-tier" : "club-card";
+            
+            // 🚀 THE NEW DEACTIVATE WHATSAPP BUTTON LOGIC (Keep plan.id here!)
+            const functionalActionButton = isCurrentPlanRunning 
+                ? `<button class="btn" style="padding: 10px; font-size: 0.9rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; cursor: pointer;" onclick="requestDeactivation(${plan.id})">🛑 Request Deactivation</button>`
+                : `<button class="btn" style="padding: 10px; font-size: 0.9rem;" onclick="activatePlan(${plan.id}, '${plan.deposit}')">Activate Plan</button>`;
 
-                const planHTML = `
-                    <div class="${uniqueCardClass}">
-                        <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <h2 class="club-name" style="color: #3b82f6; margin: 0;">Plan ${plan.id}</h2>
-                                ${isCurrentPlanRunning ? '<span style="color: #4ade80; font-size: 0.75rem; font-weight: bold; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 4px;">RUNNING</span>' : ''}
+            const planHTML = `
+                <div class="${uniqueCardClass}">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2 class="club-name" style="color: #3b82f6; margin: 0;">Plan ${displayRank}</h2>
+                            ${isCurrentPlanRunning ? '<span style="color: #4ade80; font-size: 0.75rem; font-weight: bold; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 4px;">RUNNING</span>' : ''}
+                        </div>
+                        
+                        <div class="plan-details">
+                            <div class="plan-row">
+                                <span class="label">Deposit</span>
+                                <span class="value">Rs. ${plan.deposit}</span>
                             </div>
-                            
-                            <div class="plan-details">
-                                <div class="plan-row">
-                                    <span class="label">Deposit</span>
-                                    <span class="value">Rs. ${plan.deposit}</span>
-                                </div>
-                                <div class="plan-row">
-                                    <span class="label">Withdraw</span>
-                                    <span class="value">Rs. ${plan.withdraw}</span>
-                                </div>
-                                <div class="plan-row">
-                                    <span class="label">Duration</span>
-                                    <span class="value">${plan.duration}</span>
-                                </div>
-                                <div class="plan-row" style="border-top: 1px dashed rgba(255,255,255,0.15); margin-top: 5px; padding-top: 12px;">
-                                    <span class="label" style="color: #ffffff; font-weight: bold;">Total Interest</span>
-                                    <span class="value highlight-value">Rs. ${plan.interest}</span>
-                                </div>
+                            <div class="plan-row">
+                                <span class="label">Withdraw</span>
+                                <span class="value">Rs. ${plan.withdraw}</span>
+                            </div>
+                            <div class="plan-row">
+                                <span class="label">Duration</span>
+                                <span class="value">${plan.duration}</span>
+                            </div>
+                            <div class="plan-row" style="border-top: 1px dashed rgba(255,255,255,0.15); margin-top: 5px; padding-top: 12px;">
+                                <span class="label" style="color: #ffffff; font-weight: bold;">Total Interest</span>
+                                <span class="value highlight-value">Rs. ${plan.interest}</span>
                             </div>
                         </div>
-                        ${functionalActionButton}
                     </div>
-                `;
-                gridContainer.innerHTML += planHTML;
-            });
+                    ${functionalActionButton}
+                </div>
+            `;
+            gridContainer.innerHTML += planHTML;
+        });
         }
 
         // --- 4. REDIRECTION TO PAYMENT ROUTE FUNCTION ---

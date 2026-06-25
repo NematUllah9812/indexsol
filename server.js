@@ -3,7 +3,7 @@ const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
 
-// THIS is where 'app' is born! Everything using 'app' must go below this line.
+// Initialize Express app
 const app = express();
 
 // Initialize Supabase Client directly
@@ -46,7 +46,9 @@ app.post('/api/register', async (req, res) => {
             .select();
 
         if (error) throw error;
-        return res.redirect('/login.html?registered=true');
+        
+        // 🟢 FIX: Handing back clean JSON data so your frontend async script doesn't crash
+        return res.status(200).json({ success: true });
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
@@ -106,9 +108,10 @@ app.post('/api/user/request-tier', async (req, res) => {
     }
 });
 
-// --- NEW PLAN ROUTES ---
 
-// Get all active plans from the database (For both Users and Admin)
+// --- 3. DYNAMIC INVESTMENT PLANS ROUTES ---
+
+// Fetch all active plans from the database (For both Users and Admin)
 app.get('/api/plans', async (req, res) => {
     try {
         const { data, error } = await supabase
@@ -127,12 +130,13 @@ app.get('/api/plans', async (req, res) => {
 app.post('/api/admin/plans', async (req, res) => {
     const { deposit, withdraw, duration, interest, raw_deposit_value } = req.body;
     try {
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('investment_plans')
-            .insert([{ deposit, withdraw, duration, interest, raw_deposit_value: parseInt(raw_deposit_value) }]);
+            .insert([{ deposit, withdraw, duration, interest, raw_deposit_value: parseInt(raw_deposit_value) }])
+            .select();
             
         if (error) throw error;
-        return res.status(200).json({ success: true });
+        return res.status(200).json({ success: true, plan: data[0] });
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
@@ -147,14 +151,14 @@ app.delete('/api/admin/plans/:id', async (req, res) => {
             .eq('id', req.params.id);
             
         if (error) throw error;
-        return res.status(200).json({ success: true });
+        return res.status(200).json({ success: true, message: `Plan ${req.params.id} deleted successfully.` });
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
 });
 
 
-// --- 3. ADMINISTRATIVE DASHBOARD OPERATIONS ---
+// --- 4. ADMINISTRATIVE DASHBOARD OPERATIONS ---
 
 app.get('/api/admin/pending', async (req, res) => {
     try {
@@ -284,10 +288,20 @@ app.post('/api/admin/toggle-tier', async (req, res) => {
 });
 
 
+// --- 5. STATIC SITE REDIRECTS & VIEWS ---
+
 // Route to serve the dashboard webpage layout
 app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
+
+// Root route: Automatically redirect visitors to the login page
+app.get('/', (req, res) => {
+    res.redirect('/login.html');
+});
+
+
+// --- 6. EXPORTS & RUNNERS (Always keep at the absolute end!) ---
 
 // Export the application layer for Vercel Serverless engine integration
 module.exports = app;
@@ -295,54 +309,3 @@ module.exports = app;
 // Local development runner
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Backend live and listening on http://localhost:${PORT}`));
-
-// ==========================================
-// DYNAMIC INVESTMENT PLANS ROUTES
-// ==========================================
-
-// 1. Fetch all plans (Used by both User Dashboard and Admin Portal)
-app.get('/api/plans', async (req, res) => {
-    try {
-        const { data, error } = await supabase
-            .from('investment_plans')
-            .select('*')
-            .order('raw_deposit_value', { ascending: true });
-
-        if (error) throw error;
-        res.json(data);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// 2. Create a new investment plan (Admin Only)
-app.post('/api/admin/plans', async (req, res) => {
-    const { deposit, withdraw, duration, interest, raw_deposit_value } = req.body;
-    try {
-        const { data, error } = await supabase
-            .from('investment_plans')
-            .insert([{ deposit, withdraw, duration, interest, raw_deposit_value }])
-            .select();
-
-        if (error) throw error;
-        res.json({ success: true, plan: data[0] });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// 3. Delete an investment plan (Admin Only)
-app.delete('/api/admin/plans/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        const { error } = await supabase
-            .from('investment_plans')
-            .delete()
-            .eq('id', id);
-
-        if (error) throw error;
-        res.json({ success: true, message: `Plan ${id} deleted successfully.` });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
