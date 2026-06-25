@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static UI files out of your 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.resolve(__dirname, 'public')));
 
 
 // --- 1. EXISTING USER REGS & AUTH ROUTING ---
@@ -306,6 +306,8 @@ app.get('/', (req, res) => {
 // Export the application layer for Vercel Serverless engine integration
 module.exports = app;
 
-// Local development runner
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Backend live and listening on http://localhost:${PORT}`));
+// Only run app.listen if we are NOT on Vercel
+if (require.main === module) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`🚀 Backend live on http://localhost:${PORT}`));
+}
